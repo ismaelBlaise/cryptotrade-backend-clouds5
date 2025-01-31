@@ -131,6 +131,10 @@ public class TransactionService {
 
     public void validaterAchat(String token){
         TransactionCrypto transactionCrypto=transactionCryptoService.findByValidationToken(token);
+        retrait(transactionCrypto.getPortefeuilleCrypto().getUtilisateur().getId(),transactionCrypto.getMontant(), statutService.getStatutValider(),transactionCrypto.getId());
+        PortefeuilleCrypto portefeuilleCrypto=transactionCrypto.getPortefeuilleCrypto();
+        portefeuilleCrypto.quantitePlus(transactionCrypto.getQuantite());
+        portefeuilleCryptoService.update(portefeuilleCrypto.getId(), portefeuilleCrypto);
         transactionCrypto.setStatut(statutService.getStatutValider());
 
     }
@@ -140,16 +144,19 @@ public class TransactionService {
         Utilisateur u = utilisateurService.findById(idUtilisateur);
         Cryptomonnaie crypto = cryptomonnaieService.findById(idCrypto);
         PortefeuilleCrypto portefeuille = portefeuilleCryptoService.findByCryptomonnaieAndUtilisateur(crypto, u);
-        portefeuille.quantitePlus(quantite);
-        portefeuilleCryptoService.update(portefeuille.getId(), portefeuille);
+        if(portefeuille==null){
+            portefeuille=new PortefeuilleCrypto();
+            portefeuille.setCryptomonnaie(crypto);
+            portefeuille.setQuantite(BigDecimal.valueOf(0));
+            portefeuille.setUtilisateur(u);
+            portefeuilleCryptoService.save(portefeuille);
+        }
         HistoriquePrix historiquePrix = historiquePrixService.findLatestByCryptomonnaieId(idCrypto);
         BigDecimal montant = BigDecimal.valueOf(quantite.doubleValue() * historiquePrix.getPrix().doubleValue());
         TransactionCrypto transaction = new TransactionCrypto(quantite, montant, statutService.getStatutAttente(), typeTransactionService.getTypeAchat(), portefeuille);
         String token =UUID.randomUUID().toString();
         transaction.setValidationToken(token);
         transactionCryptoService.save(transaction);
-        retrait(idUtilisateur, montant, statutService.getStatutAttente(),transaction.getId());
-
         String urlValidation=emailValidationAchat(token, u.getEmail());
 
         return transaction.getId();

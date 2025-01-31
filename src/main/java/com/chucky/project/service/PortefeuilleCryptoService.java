@@ -40,7 +40,7 @@ public class PortefeuilleCryptoService {
     }
 
     public PortefeuilleCrypto findByCryptomonnaieAndUtilisateur(Cryptomonnaie cryptomonnaie, Utilisateur utilisateur) {
-        return portefeuillecryptoRepository.findByCryptomonnaieAndUtilisateur(cryptomonnaie, utilisateur).orElseThrow(() -> new RuntimeException("portefeuille crypto introuvable"));
+        return portefeuillecryptoRepository.findByCryptomonnaieAndUtilisateur(cryptomonnaie, utilisateur).get();
     }
     
 }
