@@ -53,7 +53,7 @@ CREATE TABLE utilisateur (
 CREATE TABLE portefeuille (
     id SERIAL PRIMARY KEY,
     montant DECIMAL(15,3) NOT NULL DEFAULT 0,
-    date_enregistrement TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    date_enregistrement TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     utilisateur_id INT NOT NULL UNIQUE,
     FOREIGN KEY (utilisateur_id) REFERENCES utilisateur (id)
 );
