@@ -43,7 +43,10 @@ public class AuthService {
 
     public CodePinDTO connexionAPI(LoginDTO loginDTO) {
         Utilisateur utilisateur = connexion(loginDTO);
-    
+        UtilisateurEtatDTO utilisateurEtatDTO = recupererUtilisateurAPI(loginDTO.getEmail());
+        if(utilisateurEtatDTO.getNbTentative() ==0){
+            throw new RuntimeException("Trop de tentatioves, veuillez réessayer plus tard.");
+        }
         if (utilisateur == null) {
             throw new RuntimeException("L'utilisateur n'existe pas.");
         }
@@ -133,6 +136,9 @@ public class AuthService {
 
 
     
+
+
+
     
     
 
