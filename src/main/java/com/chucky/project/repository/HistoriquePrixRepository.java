@@ -12,7 +12,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface HistoriquePrixRepository extends JpaRepository<HistoriquePrix,Integer> {
 
-    @Query("SELECT h FROM HistoriquePrix h WHERE h.id = :cryptoId ORDER BY h.dateEnregistrement DESC")
+    @Query("SELECT h FROM HistoriquePrix h WHERE h.cryptomonnaieId = :cryptoId ORDER BY h.dateEnregistrement DESC")
     Optional<HistoriquePrix> findLatestByCryptomonnaieId(@Param("cryptoId") Integer cryptoId);
 
 }

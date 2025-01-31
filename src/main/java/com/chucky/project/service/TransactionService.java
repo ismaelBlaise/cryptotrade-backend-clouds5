@@ -217,6 +217,9 @@ public class TransactionService {
         Utilisateur u = utilisateurService.findById(idUtilisateur);
         Cryptomonnaie crypto = cryptomonnaieService.findById(idCrypto);
         PortefeuilleCrypto portefeuille = portefeuilleCryptoService.findByCryptomonnaieAndUtilisateur(crypto, u);
+        if(portefeuille==null){
+            throw new RuntimeException("Vous ne possédez pas ce cryptomonnaie");
+        }
         portefeuille.quantiteMoins(quantite);
         portefeuilleCryptoService.update(portefeuille.getId(), portefeuille);
         HistoriquePrix historiquePrix = historiquePrixService.findLatestByCryptomonnaieId(idCrypto);
