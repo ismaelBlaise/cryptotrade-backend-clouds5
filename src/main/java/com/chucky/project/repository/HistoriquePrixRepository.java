@@ -17,13 +17,11 @@ public interface HistoriquePrixRepository extends JpaRepository<HistoriquePrix,I
     Optional<HistoriquePrix> findLatestByCryptomonnaieId(@Param("cryptoId") Integer cryptoId);
 
 
-    @Query("SELECT h FROM HistoriquePrix h JOIN (" +
-    "    SELECT hp.cryptomonnaieId, MAX(hp.dateEnregistrement) AS dernierPrixDate " +
-    "    FROM HistoriquePrix hp " +
-    "    GROUP BY hp.cryptomonnaieId" +
-    ") latest ON h.cryptomonnaieId = latest.cryptomonnaieId " +
-    "AND h.dateEnregistrement = latest.dernierPrixDate")
+    @Query("SELECT h FROM HistoriquePrix h WHERE h.dateEnregistrement = (" +
+       "    SELECT MAX(hp.dateEnregistrement) FROM HistoriquePrix hp WHERE hp.cryptomonnaieId = h.cryptomonnaieId" +
+       ")")
     List<HistoriquePrix> findLatestPricesForAllCryptomonnaies();
+
 
     List<HistoriquePrix> findAllByCryptomonnaieId(Integer cryptoId);
 
