@@ -130,7 +130,14 @@ public class TransactionService {
     }
 
     public void validaterAchat(String token){
+        
         TransactionCrypto transactionCrypto=transactionCryptoService.findByValidationToken(token);
+        if(transactionCrypto.getStatut().equals(statutService.getStatutValider())){
+            throw new RuntimeException("Achat deja valider");
+        }
+        if(transactionCrypto.getStatut().equals(statutService.getStatutRefus())){
+            throw new RuntimeException("Achat refuser");
+        }
         retrait(transactionCrypto.getPortefeuilleCrypto().getUtilisateur().getId(),transactionCrypto.getMontant(), statutService.getStatutValider(),transactionCrypto.getId());
         PortefeuilleCrypto portefeuilleCrypto=transactionCrypto.getPortefeuilleCrypto();
         portefeuilleCrypto.quantitePlus(transactionCrypto.getQuantite());
