@@ -77,8 +77,14 @@ public class TransactionCryptoController {
     public ResponseEntity<?> verifierAchat(@RequestParam Integer idTransation) {
         try {
             TransactionCrypto transaction=transactioncryptoService.findById(idTransation);
-            if(statutService.getStatutAttente().equals())
-            return ResponseEntity.ok(transaction);
+            if(statutService.getStatutAttente().equals(transaction.getStatut())){
+                return ResponseEntity.ok(false);
+            }
+            if(statutService.getStatutRefus().equals(transaction.getStatut())){
+                throw new RuntimeException("Achat refusée");
+            }
+            return ResponseEntity.ok(true);
+            
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
