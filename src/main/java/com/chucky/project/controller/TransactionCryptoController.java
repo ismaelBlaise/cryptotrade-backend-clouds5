@@ -2,6 +2,7 @@ package com.chucky.project.controller;
 
 import com.chucky.project.dto.TransactionCryptoRequestDto;
 import com.chucky.project.model.TransactionCrypto;
+import com.chucky.project.service.StatutService;
 import com.chucky.project.service.TransactionCryptoService;
 import com.chucky.project.service.TransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +19,9 @@ public class TransactionCryptoController {
 
     @Autowired
     private TransactionService transactionService;
+
+    @Autowired
+    private StatutService statutService;
 
     @PostMapping
     public TransactionCrypto save(@RequestBody TransactionCrypto transactioncrypto) {
@@ -48,8 +52,8 @@ public class TransactionCryptoController {
     @PostMapping("/achat")
     public ResponseEntity<?> effectuerAchat(@RequestBody TransactionCryptoRequestDto dto) {
         try {
-            String urlValidation = transactionService.achat(dto.getIdUtilisateur(), dto.getIdCrypto(), dto.getQuantite());
-            return ResponseEntity.ok(urlValidation);
+            Integer achatId = transactionService.achat(dto.getIdUtilisateur(), dto.getIdCrypto(), dto.getQuantite());
+            return ResponseEntity.ok(achatId);
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
@@ -58,11 +62,22 @@ public class TransactionCryptoController {
     @PostMapping("/vente")
     public ResponseEntity<?> effectuerVente(@RequestBody TransactionCryptoRequestDto dto) {
         try {
-            TransactionCryptoResponseDto transaction = transactionService.vente(
+            TransactionCrypto transaction = transactionService.vente(
                 dto.getIdUtilisateur(), 
                 dto.getIdCrypto(), 
                 dto.getQuantite()
             );
+            return ResponseEntity.ok(transaction);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/verifier-achat")
+    public ResponseEntity<?> verifierAchat(@RequestParam Integer idTransation) {
+        try {
+            TransactionCrypto transaction=transactioncryptoService.findById(idTransation);
+            if(statutService.getStatutAttente().equals())
             return ResponseEntity.ok(transaction);
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());

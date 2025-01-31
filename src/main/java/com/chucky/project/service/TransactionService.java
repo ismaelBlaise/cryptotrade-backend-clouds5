@@ -16,6 +16,8 @@ import com.chucky.project.model.TransactionCrypto;
 import com.chucky.project.model.TransactionFond;
 import com.chucky.project.model.Utilisateur;
 
+import jakarta.mail.MessagingException;
+
 @Service
 public class TransactionService {
 
@@ -133,7 +135,8 @@ public class TransactionService {
 
     }
 
-    public String achat(Integer idUtilisateur, Integer idCrypto, BigDecimal quantite) {
+    @SuppressWarnings("unused")
+    public Integer achat(Integer idUtilisateur, Integer idCrypto, BigDecimal quantite) {
         Utilisateur u = utilisateurService.findById(idUtilisateur);
         Cryptomonnaie crypto = cryptomonnaieService.findById(idCrypto);
         PortefeuilleCrypto portefeuille = portefeuilleCryptoService.findByCryptomonnaieAndUtilisateur(crypto, u);
@@ -149,10 +152,13 @@ public class TransactionService {
 
         String urlValidation=emailValidationAchat(token, u.getEmail());
 
-        return urlValidation;
+        return transaction.getId();
     }
 
-    
+    public Statut statutAchat(Integer transactionId){
+        TransactionCrypto transactionCrypto=transactionCryptoService.findById(transactionId);
+        return transactionCrypto.getStatut();
+    }
 
     public String emailValidationAchat(String token, String destinataire) {
         EmailConfig config = new EmailConfig("smtp.gmail.com", 587, "rarianamiadana@gmail.com", "rvprckgprzaukjkk");
