@@ -8,6 +8,8 @@ import lombok.Data;
 public class UtilisateurEtatDTO {
     @JsonProperty("id_utilisateurs")
     private Integer id;
+    @JsonProperty("nb_tentative")
+    private Integer nbTentative;
     @JsonProperty("etat")
     private boolean etat;
 }

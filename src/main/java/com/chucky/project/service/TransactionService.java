@@ -154,7 +154,7 @@ public class TransactionService {
 
         }
         transactionCrypto.setStatut(statutService.getStatutValider());
-        TransactionFond transactionFond=retrait(transactionCrypto.getPortefeuilleCrypto().getUtilisateur().getId(),transactionCrypto.getMontant(), statutService.getStatutValider(),transactionCrypto.getId());
+        TransactionFond transactionFond=retrait(transactionCrypto.getPortefeuilleCrypto().getUtilisateur().getId(),transactionCrypto.getMontant(), statutService.getStatutAttente(),transactionCrypto.getId());
         validerRetrait(transactionFond);
         PortefeuilleCrypto portefeuilleCrypto=transactionCrypto.getPortefeuilleCrypto();
         portefeuilleCrypto.quantitePlus(transactionCrypto.getQuantite());
@@ -251,8 +251,10 @@ public class TransactionService {
         HistoriquePrix historiquePrix = historiquePrixService.findLatestByCryptomonnaieId(idCrypto);
         BigDecimal montant = BigDecimal.valueOf(quantite.doubleValue() * historiquePrix.getPrix().doubleValue());
         TransactionCrypto transaction = new TransactionCrypto(quantite, montant, statutService.getStatutValider(), typeTransactionService.getTypeVente(), portefeuille);
-        depot(idUtilisateur, montant,statutService.getStatutValider(),transaction.getId());
-        return transactionCryptoService.save(transaction);
+        transactionCryptoService.save(transaction);
+        TransactionFond transactionFond=depot(portefeuille.getUtilisateur().getId(),montant, statutService.getStatutAttente(),transaction.getId());
+        validerDepot(transactionFond);
+        return transaction;
     }
 
 }

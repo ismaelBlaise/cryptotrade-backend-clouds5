@@ -68,7 +68,7 @@ public class TransactionCryptoController {
                 dto.getIdCrypto(), 
                 dto.getQuantite()
             );
-            return ResponseEntity.ok(transaction);
+            return ResponseEntity.ok("Vente de "+transaction.getQuantite()+" "+transaction.getPortefeuilleCrypto().getCryptomonnaie().getNom()+" effectuée !");
         } catch (RuntimeException e) {
             e.printStackTrace();
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -95,20 +95,28 @@ public class TransactionCryptoController {
     @GetMapping("/valider-achat")
     public ResponseEntity<String> validerAchat(@RequestParam String token) {
         try {
-             
-            TransactionCrypto transactionCrypto=transactionService.validaterAchat(token);
             
-            
-            String message = "Votre transaction de " + transactionCrypto.getPortefeuilleCrypto().getCryptomonnaie() + " a été validée avec succès.";
+            TransactionCrypto transactionCrypto = transactionService.validaterAchat(token);
             
              
+            String cryptoName = transactionCrypto.getPortefeuilleCrypto().getCryptomonnaie().getNom();
+            String cryptoSymbol = transactionCrypto.getPortefeuilleCrypto().getCryptomonnaie().getSymbole();
+            String creationDate = transactionCrypto.getDateCreation().toString();
+            
+            
+            String message = "<b>Votre transaction de " + cryptoName + " (" + cryptoSymbol + ")</b><br>"
+                        + "Date de création: " + creationDate + "<br>"
+                        + "a été validée avec succès.";
+            
+            
             String htmlResponse = "<html>"
                                 + "<head>"
                                 + "<style>"
                                 + "body { font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 0; }"
-                                + "h1 { text-align: center; color: #4CAF50; margin-top: 50px; }"
-                                + "div.container { max-width: 600px; margin: 0 auto; padding: 20px; background-color: #fff; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); }"
+                                + "h1 { text-align: center; color: #4CAF50; margin-top: 50px; font-size: 24px; }"
+                                + "div.container { max-width: 600px; margin: 0 auto; padding: 20px; background-color: #fff; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); text-align: center; }"
                                 + "p { font-size: 18px; color: #333; text-align: center; margin-top: 20px; }"
+                                + "b { color: #4CAF50; }"
                                 + "</style>"
                                 + "</head>"
                                 + "<body>"
@@ -120,14 +128,15 @@ public class TransactionCryptoController {
             
             return ResponseEntity.ok().body(htmlResponse);
         } catch (RuntimeException e) {
-            // Retourner un message d'erreur stylisé
+            
             String errorHtml = "<html>"
                             + "<head>"
                             + "<style>"
                             + "body { font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 0; }"
-                            + "h1 { text-align: center; color: #FF6347; margin-top: 50px; }"
-                            + "div.container { max-width: 600px; margin: 0 auto; padding: 20px; background-color: #fff; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); }"
+                            + "h1 { text-align: center; color: #FF6347; margin-top: 50px; font-size: 24px; }"
+                            + "div.container { max-width: 600px; margin: 0 auto; padding: 20px; background-color: #fff; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); text-align: center; }"
                             + "p { font-size: 18px; color: #333; text-align: center; margin-top: 20px; }"
+                            + "b { color: #FF6347; }"
                             + "</style>"
                             + "</head>"
                             + "<body>"
@@ -140,6 +149,7 @@ public class TransactionCryptoController {
             return ResponseEntity.badRequest().body(errorHtml);
         }
     }
+
 
 
     @ExceptionHandler(RuntimeException.class)
