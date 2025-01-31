@@ -40,7 +40,11 @@ public class PortefeuilleCryptoService {
     }
 
     public PortefeuilleCrypto findByCryptomonnaieAndUtilisateur(Cryptomonnaie cryptomonnaie, Utilisateur utilisateur) {
-        return portefeuillecryptoRepository.findByCryptomonnaieAndUtilisateur(cryptomonnaie, utilisateur).get();
+        if(portefeuillecryptoRepository.findByCryptomonnaieAndUtilisateur(cryptomonnaie, utilisateur).isPresent()){
+            return portefeuillecryptoRepository.findByCryptomonnaieAndUtilisateur(cryptomonnaie, utilisateur).get();
+        } else {
+            return null;
+        }
     }
     
 }

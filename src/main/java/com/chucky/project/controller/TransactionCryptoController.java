@@ -55,6 +55,7 @@ public class TransactionCryptoController {
             Integer achatId = transactionService.achat(dto.getIdUtilisateur(), dto.getIdCrypto(), dto.getQuantite());
             return ResponseEntity.ok(achatId);
         } catch (RuntimeException e) {
+            e.printStackTrace();
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }

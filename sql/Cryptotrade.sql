@@ -74,7 +74,7 @@ CREATE TABLE transaction_fond (
 CREATE TABLE portefeuille_crypto (
     id SERIAL PRIMARY KEY,
     quantite DECIMAL(15,6) NOT NULL DEFAULT 0,
-    date_creation TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    date_creation TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     cryptomonnaie_id INT NOT NULL,
     utilisateur_id INT NOT NULL,
     FOREIGN KEY (cryptomonnaie_id) REFERENCES cryptomonnaie (id),
