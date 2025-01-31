@@ -41,4 +41,14 @@ public class HistoriquePrixController {
         return ResponseEntity.noContent().build();
     }
 
+    @GetMapping("/cours")
+    public ResponseEntity<?>  coursEnTempsReel() {
+        try {
+            return ResponseEntity.ok(historiqueprixService.findLatestPricesForAllCryptomonnaies());
+        } catch (RuntimeException e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
 }
