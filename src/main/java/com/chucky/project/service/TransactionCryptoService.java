@@ -16,8 +16,6 @@ public class TransactionCryptoService {
     @Autowired
     private TransactionCryptoRepository transactioncryptoRepository;
 
-    @Autowired
-    private StatutService statutService;
     public TransactionCrypto save(TransactionCrypto transactioncrypto) {
         return transactioncryptoRepository.save(transactioncrypto);
     }
@@ -42,17 +40,6 @@ public class TransactionCryptoService {
 
     public TransactionCrypto findByValidationToken(String token){
         Optional<TransactionCrypto> optTransaction=transactioncryptoRepository.findByValidationToken(token);
-        if(!optTransaction.isPresent()){
-            throw new RuntimeException("Transaction non trouver");
-
-        }
-        if(optTransaction.get().getStatut().equals(statutService.getStatutValider())){
-            throw new RuntimeException("Transaction deja valider");
-        }
-
-        if(optTransaction.get().getStatut().equals(statutService.getStatutRefus())){
-            throw new RuntimeException("Transaction refuser");
-        }
         return optTransaction.get();
     }
     

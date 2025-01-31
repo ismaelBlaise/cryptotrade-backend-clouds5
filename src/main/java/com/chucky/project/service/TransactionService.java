@@ -1,11 +1,12 @@
 package com.chucky.project.service;
 
 import java.math.BigDecimal;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import com.chucky.project.model.Cryptomonnaie;
 import com.chucky.project.model.HistoriquePrix;
 import com.chucky.project.model.Portefeuille;
@@ -17,6 +18,8 @@ import com.chucky.project.model.TransactionFond;
 import com.chucky.project.model.Utilisateur;
 
 import jakarta.mail.MessagingException;
+
+
 
 @Service
 public class TransactionService {
@@ -48,6 +51,7 @@ public class TransactionService {
     @Autowired
     private TransactionCryptoService transactionCryptoService;
     
+
     public TransactionFond depot(Integer idUtilisateur, BigDecimal montant,Statut statut,Integer transactionCrypto) {
         Utilisateur u = utilisateurService.findById(idUtilisateur);
         Portefeuille portefeuille = u.getPortefeuille();
@@ -55,7 +59,7 @@ public class TransactionService {
             portefeuille=new Portefeuille();
             portefeuille.setMontant(BigDecimal.valueOf(0));
             portefeuille.setUtilisateur(u);
-            // portefeuille.setDateEnregistrement(Timestamp.valueOf(LocalDateTime.now()));
+            portefeuille.setDateEnregistrement(Timestamp.valueOf(LocalDateTime.now()));
             portefeuilleService.save(portefeuille);
         }
         TransactionFond transaction = new TransactionFond(montant,statut, portefeuille, typeTransactionService.getTypeDepot());
@@ -72,8 +76,15 @@ public class TransactionService {
     }
 
 
-
+    
     public void validerDepot(TransactionFond depot){
+        System.out.println(depot.getStatut().getStatut());
+        if (depot.getStatut().getStatut().equals(statutService.getStatutValider().getStatut())) {
+            throw new RuntimeException("Le dépôt a déjà été validé.");
+        }
+        if (depot.getStatut().getStatut().equals(statutService.getStatutRefus().getStatut())) {
+            throw new RuntimeException("Le dépôt a été refuser.");
+        }
         depot.setStatut(statutService.getStatutValider());
         Portefeuille portefeuille=depot.getPortefeuille();
         portefeuille.montantPlus(depot.getMontant());
@@ -82,8 +93,14 @@ public class TransactionService {
 
     }
 
-
+    
     public void validerRetrait(TransactionFond retrait){
+        if (retrait.getStatut().getStatut().equals(statutService.getStatutValider().getStatut())) {
+            throw new RuntimeException("Le retrait a déjà été validé.");
+        }
+        if (retrait.getStatut().getStatut().equals(statutService.getStatutRefus().getStatut())) {
+            throw new RuntimeException("Le retrait a été refuser.");
+        }
         retrait.setStatut(statutService.getStatutValider());
         Portefeuille portefeuille=retrait.getPortefeuille();
         portefeuille.montantMoins(retrait.getMontant());
@@ -95,57 +112,56 @@ public class TransactionService {
 
 
     public void refuserDepot(TransactionFond depot){
-        if(depot.getStatut().getId()==statutService.getStatutAttente().getId()){
-            depot.setStatut(statutService.getStatutRefus());
-            Portefeuille portefeuille=depot.getPortefeuille();
-            portefeuille.montantMoins(depot.getMontant());
-            transactionFondService.update(depot.getId(), depot);
-        }
-        else if(depot.getStatut().getId()==statutService.getStatutValider().getId()){
+        if(depot.getStatut().getStatut().equals(statutService.getStatutValider().getStatut())){
             throw new RuntimeException("Le depot est déja valider");
         }
 
-        else if(depot.getStatut().getId()==statutService.getStatutRefus().getId()){
+        else if(depot.getStatut().getStatut().equals(statutService.getStatutRefus().getStatut())){
             throw new RuntimeException("Le depot est déja refuser");
         }
+        depot.setStatut(statutService.getStatutRefus());
+        Portefeuille portefeuille=depot.getPortefeuille();
+        portefeuille.montantMoins(depot.getMontant());
+        transactionFondService.update(depot.getId(), depot);
         
 
     }
 
 
     public void refuserRetrait(TransactionFond retrait){
-        if(retrait.getStatut().getId()==statutService.getStatutAttente().getId()){
-            retrait.setStatut(statutService.getStatutRefus());
-            Portefeuille portefeuille=retrait.getPortefeuille();
-            portefeuille.montantPlus(retrait.getMontant());
-            transactionFondService.update(retrait.getId(), retrait);
-        }
-        else if(retrait.getStatut().getId()==statutService.getStatutValider().getId()){
+        if(retrait.getStatut().getStatut().equals(statutService.getStatutValider().getStatut())){
             throw new RuntimeException("Le retrait est déja valider");
         }
 
-        else if(retrait.getStatut().getId()==statutService.getStatutRefus().getId()){
+        else if(retrait.getStatut().getStatut().equals(statutService.getStatutRefus().getStatut())){
             throw new RuntimeException("Le retrait est déja refuser");
         }
+        retrait.setStatut(statutService.getStatutRefus());
+        Portefeuille portefeuille=retrait.getPortefeuille();
+        portefeuille.montantPlus(retrait.getMontant());
+        transactionFondService.update(retrait.getId(), retrait);
     }
 
-    public void validaterAchat(String token){
+    public TransactionCrypto validaterAchat(String token){
         
         TransactionCrypto transactionCrypto=transactionCryptoService.findByValidationToken(token);
-        if(transactionCrypto.getStatut().getId()==statutService.getStatutValider().getId()){
+         
+        if(transactionCrypto.getStatut().getStatut().equals(statutService.getStatutValider().getStatut())){
             throw new RuntimeException("Achat deja valider");
         }
-        if(transactionCrypto.getStatut().getId()==statutService.getStatutRefus().getId()){
+        if(transactionCrypto.getStatut().getStatut().equals(statutService.getStatutRefus().getStatut())){
             throw new RuntimeException("Achat refuser");
 
         }
+        transactionCrypto.setStatut(statutService.getStatutValider());
         TransactionFond transactionFond=retrait(transactionCrypto.getPortefeuilleCrypto().getUtilisateur().getId(),transactionCrypto.getMontant(), statutService.getStatutValider(),transactionCrypto.getId());
         validerRetrait(transactionFond);
         PortefeuilleCrypto portefeuilleCrypto=transactionCrypto.getPortefeuilleCrypto();
         portefeuilleCrypto.quantitePlus(transactionCrypto.getQuantite());
         portefeuilleCryptoService.update(portefeuilleCrypto.getId(), portefeuilleCrypto);
         transactionCrypto.setStatut(statutService.getStatutValider());
-
+        transactionCryptoService.update(transactionCrypto.getId(), transactionCrypto);
+        return transactionCrypto;
     }
 
     @SuppressWarnings("unused")
@@ -158,6 +174,7 @@ public class TransactionService {
             portefeuille.setCryptomonnaie(crypto);
             portefeuille.setQuantite(BigDecimal.valueOf(0));
             portefeuille.setUtilisateur(u);
+            portefeuille.setDateCreation(Timestamp.valueOf(LocalDateTime.now()));
             portefeuilleCryptoService.save(portefeuille);
         }
         HistoriquePrix historiquePrix = historiquePrixService.findLatestByCryptomonnaieId(idCrypto);
@@ -202,7 +219,7 @@ public class TransactionService {
             "    <div class='container'>" +
             "        <h2>Confirmation de votre achat</h2>" +
             "        <p>Merci pour votre achat ! Pour finaliser votre commande, veuillez cliquer sur le bouton ci-dessous :</p>" +
-            "        <a href='%s' class='button'>Valider mon achat</a>" +
+            "        <a style='color:white;' href='%s' class='button'>Valider mon achat</a>" +
             "        <p class='footer'>Si vous n'êtes pas à l'origine de cette demande, ignorez simplement cet e-mail.</p>" +
             "    </div>" +
             "</body>" +
