@@ -12,6 +12,7 @@ import com.chucky.project.service.UtilisateurService;
 import jakarta.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -32,6 +33,10 @@ public class AuthController {
     public ResponseEntity<?> connexion(@RequestBody LoginDTO loginDTO) {
         try {
             CodePinDTO codePinDTO = authService.connexionAPI(loginDTO);
+            if (codePinDTO.getCodepin() == -123) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Trop de tentatives de connexion. Veuillez consulter votre boite email.");
+            }
+
             loginDTO.setMdp(null);
             session.setAttribute("logindto", loginDTO);
             return ResponseEntity.ok(codePinDTO); 
