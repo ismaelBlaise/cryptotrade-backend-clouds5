@@ -51,4 +51,14 @@ public class HistoriquePrixController {
         }
     }
 
+    @GetMapping("/cours/{id}")
+    public ResponseEntity<?>  coursCrypto(@PathVariable Integer id) {
+        try {
+            return ResponseEntity.ok(historiqueprixService.findCoursCrypto(id));
+        } catch (RuntimeException e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
 }

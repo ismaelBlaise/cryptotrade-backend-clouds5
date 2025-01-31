@@ -24,4 +24,7 @@ public interface HistoriquePrixRepository extends JpaRepository<HistoriquePrix,I
     ") latest ON h.cryptomonnaieId = latest.cryptomonnaieId " +
     "AND h.dateEnregistrement = latest.dernierPrixDate")
     List<HistoriquePrix> findLatestPricesForAllCryptomonnaies();
+
+    List<HistoriquePrix> findAllByCryptomonnaieId(Integer cryptoId);
+
 }

@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -54,7 +55,20 @@ public class HistoriquePrixService {
         for (HistoriquePrix historiquePrix : historiquePrixes) {
             Cryptomonnaie cryptomonnaie=cryptomonnaieService.findById(historiquePrix.getCryptomonnaieId());
             BigDecimal prix = historiquePrix.getPrix();
-            cryptoPrixDTOs.add(new CryptoPrixDTO(cryptomonnaie, prix));
+            Timestamp timestamp = historiquePrix.getDateEnregistrement();
+            cryptoPrixDTOs.add(new CryptoPrixDTO(cryptomonnaie, prix,timestamp));
+        }
+        return cryptoPrixDTOs;
+    }
+
+    public List<CryptoPrixDTO> findCoursCrypto(Integer cryptoId){
+        List<CryptoPrixDTO> cryptoPrixDTOs = new ArrayList<>();
+        List<HistoriquePrix> historiquePrixes = historiqueprixRepository.findAllByCryptomonnaieId(cryptoId);
+        for (HistoriquePrix historiquePrix : historiquePrixes) {
+            Cryptomonnaie cryptomonnaie=cryptomonnaieService.findById(historiquePrix.getCryptomonnaieId());
+            BigDecimal prix = historiquePrix.getPrix();
+            Timestamp timestamp = historiquePrix.getDateEnregistrement();
+            cryptoPrixDTOs.add(new CryptoPrixDTO(cryptomonnaie, prix,timestamp));
         }
         return cryptoPrixDTOs;
     }
