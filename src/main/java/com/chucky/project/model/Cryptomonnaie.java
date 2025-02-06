@@ -1,6 +1,7 @@
 package com.chucky.project.model;
 
 import java.math.BigDecimal;
+import java.sql.Timestamp;
 import java.time.*;
 import java.util.*;
 import jakarta.persistence.*;
@@ -26,5 +27,14 @@ public class Cryptomonnaie {
 
     @Column(name = "date_creation")
     private LocalDate dateCreation;
+
+    @Transient
+    private BigDecimal quantite;
+
+    @Transient
+    private Timestamp datePrix;
+
+    @Transient
+    private BigDecimal prix;
 
 }

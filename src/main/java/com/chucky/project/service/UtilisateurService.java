@@ -3,6 +3,7 @@ package com.chucky.project.service;
 import com.chucky.project.dto.LoginDTO;
 import com.chucky.project.model.Utilisateur;
 import com.chucky.project.repository.UtilisateurRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
@@ -43,7 +44,13 @@ public class UtilisateurService {
     }
 
     public Utilisateur findByEmail(LoginDTO data) {
-        return utilisateurRepository.findByEmail(data.getEmail()).orElseThrow(() -> new RuntimeException("erreur lors de l'authentification"));
+        return utilisateurRepository.findByEmail(data.getEmail()).orElseThrow(() -> new RuntimeException("Adresse email introuvable"));
     }
     
+    public Boolean check(LoginDTO data) {
+        if (utilisateurRepository.findByEmail(data.getEmail()).isPresent()) {
+            return true;
+        }
+         return false;
+    }
 }

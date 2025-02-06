@@ -22,8 +22,8 @@ public class Portefeuille {
     @Column(name = "montant")
     private BigDecimal montant;
 
-    @Column(name = "date_enregistrement")
-    private Timestamp dateEnregistrement;
+    @Column(name = "date_enregistrement", nullable = false, updatable = false)
+    private Timestamp dateEnregistrement = Timestamp.from(Instant.now());
 
     @OneToOne
     @JoinColumn(name = "utilisateur_id", nullable = false)

@@ -14,4 +14,6 @@ public interface UtilisateurRepository extends JpaRepository<Utilisateur,Integer
 
     public Optional<Utilisateur> findByEmail(String email);
 
+    public Optional<Utilisateur> findByFournisseurId(Integer fournisseurId);
+
 }

@@ -4,6 +4,7 @@ import com.chucky.project.dto.CryptoPrixDTO;
 import com.chucky.project.model.Cryptomonnaie;
 import com.chucky.project.model.HistoriquePrix;
 import com.chucky.project.repository.HistoriquePrixRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
@@ -49,6 +50,11 @@ public class HistoriquePrixService {
         return historiqueprixRepository.findLatestByCryptomonnaieId(cryptoId).orElseThrow(() -> new RuntimeException("Historique prix introuvable"));
     }
 
+
+    public HistoriquePrix findLatestByDate(Timestamp timestamp) {
+        return historiqueprixRepository.findLatestByDate(timestamp).orElseThrow(() -> new RuntimeException("Historique prix introuvable"));
+    }
+
     public List<CryptoPrixDTO> findLatestPricesForAllCryptomonnaies() {
         List<CryptoPrixDTO> cryptoPrixDTOs = new ArrayList<>();
         List<HistoriquePrix> historiquePrixes = historiqueprixRepository.findLatestPricesForAllCryptomonnaies();
@@ -67,6 +73,8 @@ public class HistoriquePrixService {
         for (HistoriquePrix historiquePrix : historiquePrixes) {
             Cryptomonnaie cryptomonnaie=cryptomonnaieService.findById(historiquePrix.getCryptomonnaieId());
             BigDecimal prix = historiquePrix.getPrix();
+            cryptomonnaie.setDatePrix(historiquePrix.getDateEnregistrement());
+            cryptomonnaie.setPrix(prix);
             Timestamp timestamp = historiquePrix.getDateEnregistrement();
             cryptoPrixDTOs.add(new CryptoPrixDTO(cryptomonnaie, prix,timestamp));
         }

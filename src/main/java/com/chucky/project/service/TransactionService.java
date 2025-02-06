@@ -70,6 +70,9 @@ public class TransactionService {
     public TransactionFond retrait(Integer idUtilisateur, BigDecimal montant,Statut statut,Integer transactionCrypto) {
         Utilisateur u = utilisateurService.findById(idUtilisateur);
         Portefeuille portefeuille = u.getPortefeuille();
+        if(portefeuille.getMontant().doubleValue()<montant.doubleValue()){
+            throw new RuntimeException("Solde insuffisant");
+        }
         TransactionFond transaction = new TransactionFond(montant, statut, portefeuille, typeTransactionService.getTypeRetrait());
         transaction.setTransactionCrypto(transactionCrypto);
         return transactionFondService.save(transaction);
@@ -78,7 +81,7 @@ public class TransactionService {
 
     
     public void validerDepot(TransactionFond depot){
-        System.out.println(depot.getStatut().getStatut());
+
         if (depot.getStatut().getStatut().equals(statutService.getStatutValider().getStatut())) {
             throw new RuntimeException("Le dépôt a déjà été validé.");
         }
@@ -120,8 +123,8 @@ public class TransactionService {
             throw new RuntimeException("Le depot est déja refuser");
         }
         depot.setStatut(statutService.getStatutRefus());
-        Portefeuille portefeuille=depot.getPortefeuille();
-        portefeuille.montantMoins(depot.getMontant());
+        // Portefeuille portefeuille=depot.getPortefeuille();
+        // portefeuille.montantMoins(depot.getMontant());
         transactionFondService.update(depot.getId(), depot);
         
 
@@ -137,8 +140,8 @@ public class TransactionService {
             throw new RuntimeException("Le retrait est déja refuser");
         }
         retrait.setStatut(statutService.getStatutRefus());
-        Portefeuille portefeuille=retrait.getPortefeuille();
-        portefeuille.montantPlus(retrait.getMontant());
+        // Portefeuille portefeuille=retrait.getPortefeuille();
+        // portefeuille.montantPlus(retrait.getMontant());
         transactionFondService.update(retrait.getId(), retrait);
     }
 
@@ -153,9 +156,10 @@ public class TransactionService {
             throw new RuntimeException("Achat refuser");
 
         }
-        transactionCrypto.setStatut(statutService.getStatutValider());
+        
         TransactionFond transactionFond=retrait(transactionCrypto.getPortefeuilleCrypto().getUtilisateur().getId(),transactionCrypto.getMontant(), statutService.getStatutAttente(),transactionCrypto.getId());
         validerRetrait(transactionFond);
+        transactionCrypto.setStatut(statutService.getStatutValider());
         PortefeuilleCrypto portefeuilleCrypto=transactionCrypto.getPortefeuilleCrypto();
         portefeuilleCrypto.quantitePlus(transactionCrypto.getQuantite());
         portefeuilleCryptoService.update(portefeuilleCrypto.getId(), portefeuilleCrypto);
@@ -182,6 +186,7 @@ public class TransactionService {
         TransactionCrypto transaction = new TransactionCrypto(quantite, montant, statutService.getStatutAttente(), typeTransactionService.getTypeAchat(), portefeuille);
         String token =UUID.randomUUID().toString();
         transaction.setValidationToken(token);
+        
         transactionCryptoService.save(transaction);
         String urlValidation=emailValidationAchat(token, u.getEmail());
 

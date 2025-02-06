@@ -1,12 +1,3 @@
-\c postgres;
-
-DROP DATABASE cryptotrade;
-
-CREATE DATABASE cryptotrade;
-
-
-\c cryptotrade;
-
 
 CREATE TABLE role (
     id SERIAL PRIMARY KEY,

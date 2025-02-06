@@ -1,11 +1,17 @@
 package com.chucky.project.controller;
 
+import com.chucky.project.dto.FiltreTransactionDTO;
+import com.chucky.project.dto.TransactionCryptoDTO;
+import com.chucky.project.dto.TransactionDTO;
+import com.chucky.project.dto.TransactionFondDTO;
 import com.chucky.project.dto.TransactionFondRequestDto;
 import com.chucky.project.model.TransactionFond;
 import com.chucky.project.service.StatutService;
 import com.chucky.project.service.TransactionFondService;
 import com.chucky.project.service.TransactionService;
 import com.chucky.project.service.TypeTransactionService;
+
+import jakarta.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -36,8 +42,9 @@ public class TransactionFondController {
     }
 
     @GetMapping
-    public List<TransactionFond> findAll() {
-        return transactionfondService.findAll();
+    public List<TransactionFondDTO> findAll(HttpSession session) {
+        Integer idU = (Integer) session.getAttribute("utilisateur_id"); 
+        return transactionfondService.findAllByUserID(idU);
     }
 
     @GetMapping("/{id}")
@@ -57,10 +64,11 @@ public class TransactionFondController {
     }
 
     @PostMapping("/depot")
-    public ResponseEntity<?> effectuerDepot(@RequestBody TransactionFondRequestDto dto) {
+    public ResponseEntity<?> effectuerDepot(@RequestBody TransactionFondRequestDto dto, HttpSession session) {
+        Integer idU = (Integer) session.getAttribute("utilisateur_id"); 
         try {
             TransactionFond transaction = transactionService.depot(
-                dto.getIdUtilisateur(), 
+                idU,
                 dto.getMontant(), 
                 statutService.getStatutAttente(), 
                 0
@@ -70,13 +78,14 @@ public class TransactionFondController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+    
 
     @PostMapping("/retrait")
-    public ResponseEntity<?> effectuerRetrait(@RequestBody TransactionFondRequestDto dto) {
+    public ResponseEntity<?> effectuerRetrait(@RequestBody TransactionFondRequestDto dto,HttpSession session) {
+        Integer idU = (Integer) session.getAttribute("utilisateur_id"); 
         try {
-            
             TransactionFond transaction = transactionService.retrait(
-                dto.getIdUtilisateur(), 
+                idU, 
                 dto.getMontant(), 
                 statutService.getStatutAttente(), 
                 0
@@ -107,6 +116,18 @@ public class TransactionFondController {
         }
     }
 
+    @GetMapping("/depot")
+    public List<TransactionDTO> findDepotAttente(){
+        return transactionfondService.findByStatutAttenteDepot();
+    }
+
+
+    
+    @GetMapping("/retrait")
+    public List<TransactionDTO> findRetraitAttente(){
+        return transactionfondService.findByStatutAttenteRetrait();
+    }
+
     @GetMapping("/refuser/{id}")
     public ResponseEntity<?> refuserTransaction(@PathVariable Integer id) {
         try {
@@ -120,10 +141,21 @@ public class TransactionFondController {
                 transactionService.refuserRetrait(transaction);
                 return ResponseEntity.ok("Retrait refuser avec succès !");
             }
-            
+                
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
+
+     @PostMapping("/filtre")
+    public List<TransactionFondDTO> filtreParDate(@RequestBody FiltreTransactionDTO filtreTransactionDTO ){
+        return transactionfondService.findByFilters(filtreTransactionDTO.getDebut(), filtreTransactionDTO.getFin(),filtreTransactionDTO.getUtilisateurId());
+    }
+
+
+    @GetMapping("/filtre/{id}")
+    public List<TransactionFondDTO> filtreParUtilisateur(@PathVariable Integer id){
+        return transactionfondService.findByUtilisateur(id);
+    }
 }

@@ -5,8 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 @Data
-public class TokenDTO {
-
-    @JsonProperty("token")
-    private String token;
+public class IdDTO {
+    @JsonProperty("id")
+    Integer id;
 }

@@ -1,13 +1,17 @@
 package com.chucky.project.service;
 
 import com.chucky.project.model.Cryptomonnaie;
+import com.chucky.project.model.HistoriquePrix;
 import com.chucky.project.model.PortefeuilleCrypto;
 import com.chucky.project.model.Utilisateur;
+import com.chucky.project.repository.HistoriquePrixRepository;
 import com.chucky.project.repository.PortefeuilleCryptoRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -16,6 +20,9 @@ public class PortefeuilleCryptoService {
 
     @Autowired
     private PortefeuilleCryptoRepository portefeuillecryptoRepository;
+
+    @Autowired
+    private HistoriquePrixRepository historiquePrixRepository;
 
     public PortefeuilleCrypto save(PortefeuilleCrypto portefeuillecrypto) {
         return portefeuillecryptoRepository.save(portefeuillecrypto);
@@ -45,6 +52,22 @@ public class PortefeuilleCryptoService {
         } else {
             return null;
         }
+    }
+
+
+    public List<Cryptomonnaie> findCryptoByUtilisateur(Utilisateur utilisateur) {
+        List<Cryptomonnaie> cryptomonnaies = new ArrayList<>();
+        List<PortefeuilleCrypto> portefeuilleCryptos=portefeuillecryptoRepository.findByUtilisateur(utilisateur);
+        for (PortefeuilleCrypto portefeuilleCrypto : portefeuilleCryptos) {
+            HistoriquePrix historiquePrix=historiquePrixRepository.findLatestByCryptomonnaieId(portefeuilleCrypto.getCryptomonnaie().getId()).get();
+            portefeuilleCrypto.getCryptomonnaie().setPrix(historiquePrix.getPrix());
+            portefeuilleCrypto.getCryptomonnaie().setQuantite(portefeuilleCrypto.getQuantite());
+            cryptomonnaies.add(portefeuilleCrypto.getCryptomonnaie());
+            
+        }
+        return cryptomonnaies;
+
+
     }
     
 }

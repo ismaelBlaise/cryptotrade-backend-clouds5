@@ -1,13 +1,13 @@
 package com.chucky.project.dto;
 
-import lombok.Getter;
-import lombok.Setter;
-
 import java.math.BigDecimal;
 
-@Getter
-@Setter
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import lombok.Data;
+
+@Data
 public class TransactionFondRequestDto {
-    private Integer idUtilisateur;
+    @JsonProperty("montant")
     private BigDecimal montant;
 }

@@ -1,13 +1,20 @@
 package com.chucky.project.controller;
 
+import com.chucky.project.dto.FiltreTransactionDTO;
+import com.chucky.project.dto.TransactionCryptoDTO;
 import com.chucky.project.dto.TransactionCryptoRequestDto;
 import com.chucky.project.model.TransactionCrypto;
 import com.chucky.project.service.StatutService;
 import com.chucky.project.service.TransactionCryptoService;
 import com.chucky.project.service.TransactionService;
+
+import jakarta.servlet.http.HttpSession;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.sql.Timestamp;
 import java.util.List;
 
 @RestController
@@ -50,10 +57,12 @@ public class TransactionCryptoController {
     }
 
     @PostMapping("/achat")
-    public ResponseEntity<?> effectuerAchat(@RequestBody TransactionCryptoRequestDto dto) {
+    public ResponseEntity<?> effectuerAchat(@RequestBody TransactionCryptoRequestDto dto, HttpSession session) {
         try {
-            Integer achatId = transactionService.achat(dto.getIdUtilisateur(), dto.getIdCrypto(), dto.getQuantite());
-            return ResponseEntity.ok(achatId);
+            Integer idU=(Integer) session.getAttribute("utilisateur_id");
+            @SuppressWarnings("unused")
+            Integer achatId = transactionService.achat(idU, dto.getIdCrypto(), dto.getQuantite());
+            return ResponseEntity.ok("Achat effectuer veuilliez consulter votre email pour valider");
         } catch (RuntimeException e) {
             e.printStackTrace();
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -61,10 +70,11 @@ public class TransactionCryptoController {
     }
 
     @PostMapping("/vente")
-    public ResponseEntity<?> effectuerVente(@RequestBody TransactionCryptoRequestDto dto) {
+    public ResponseEntity<?> effectuerVente(@RequestBody TransactionCryptoRequestDto dto,HttpSession session) {
         try {
+            Integer idU=(Integer) session.getAttribute("utilisateur_id");
             TransactionCrypto transaction = transactionService.vente(
-                dto.getIdUtilisateur(), 
+                idU,
                 dto.getIdCrypto(), 
                 dto.getQuantite()
             );
@@ -155,6 +165,18 @@ public class TransactionCryptoController {
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<String> handleRuntimeException(RuntimeException e) {
         return ResponseEntity.badRequest().body("Erreur : " + e.getMessage());
+    }
+
+
+    @PostMapping("/filtre")
+    public List<TransactionCryptoDTO> filtreParDate(@RequestBody FiltreTransactionDTO filtreTransactionDTO ){
+        return transactioncryptoService.findByFilters(filtreTransactionDTO.getDebut(), filtreTransactionDTO.getFin(),filtreTransactionDTO.getUtilisateurId(),filtreTransactionDTO.getCryptoId());
+    }
+
+
+    @GetMapping("/filtre/{id}")
+    public List<TransactionCryptoDTO> filtreParUtilisateur(@PathVariable Integer id){
+        return transactioncryptoService.findByUtilisateur(id);
     }
 
 }

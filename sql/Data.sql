@@ -1,6 +1,7 @@
 INSERT INTO role (nom) VALUES
-('Admin'),
-('Utilisateur');
+('administrateur'),
+('utilisateur');
+
 
 INSERT INTO cryptomonnaie (nom, symbole, date_creation) VALUES
 ('Bitcoin', 'BTC', '2009-01-03'),
@@ -41,9 +42,9 @@ INSERT INTO portefeuille (montant, utilisateur_id) VALUES
 (2000.00, 3);
 
 INSERT INTO portefeuille_crypto (quantite, cryptomonnaie_id, utilisateur_id) VALUES
-(0.5, 1, 1),
+(0.5, 1, 2),
 (1.2, 2, 2),
-(3.0, 3, 3);
+(3.0, 3, 2);
 
 INSERT INTO type_commission (type_commission) VALUES
 ('Frais de transaction'),
@@ -56,4 +57,5 @@ INSERT INTO commission (pourcentage, type_commission_id) VALUES
 INSERT INTO notification (titre, message, utilisateur_id) VALUES
 ('Achat validé', 'Votre achat de BTC a été validé.', 1),
 ('Retrait refusé', 'Votre demande de retrait a été refusée.', 2);
+
 

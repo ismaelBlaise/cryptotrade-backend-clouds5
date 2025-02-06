@@ -2,6 +2,7 @@ package com.chucky.project.service;
 
 import com.chucky.project.model.Role;
 import com.chucky.project.repository.RoleRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
@@ -25,6 +26,15 @@ public class RoleService {
 
     public Role findById(Integer id) {
         return roleRepository.findById(id).orElseThrow(() -> new RuntimeException("Introuvable"));
+    }
+
+
+    public Role findRoleUtilisateur(){
+        return roleRepository.findByNom("utilisateur").get();
+    }
+
+    public Role findRoleAdmin(){
+        return roleRepository.findByNom("administrateur").get();
     }
 
     public Role update(Integer id, Role role) {

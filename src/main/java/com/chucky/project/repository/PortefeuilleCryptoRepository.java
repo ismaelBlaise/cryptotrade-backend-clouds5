@@ -4,6 +4,7 @@ import com.chucky.project.model.Cryptomonnaie;
 import com.chucky.project.model.PortefeuilleCrypto;
 import com.chucky.project.model.Utilisateur;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -14,4 +15,5 @@ public interface PortefeuilleCryptoRepository extends JpaRepository<Portefeuille
 
     Optional<PortefeuilleCrypto> findByCryptomonnaieAndUtilisateur(Cryptomonnaie cryptomonnaie, Utilisateur utilisateur);
     
+    List<PortefeuilleCrypto> findByUtilisateur(Utilisateur utilisateur);
 }
